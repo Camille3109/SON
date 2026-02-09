@@ -27,13 +27,12 @@ void setup() {
 void loop() {
   if (notefreq.available()) {
     float freq = notefreq.read();
-    float prob = notefreq.probability();
+ 
     
     Serial.print("Fréquence: ");
     Serial.print(freq);
-    Serial.print(" Hz");
-    Serial.print("  Probabilité: ");
-    Serial.println(prob);
+    Serial.println(" Hz");
+   
   }
   
   delay(100); // Lecture toutes les 100ms
