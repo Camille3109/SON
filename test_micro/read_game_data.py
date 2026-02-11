@@ -10,6 +10,9 @@ def find_arduino_port():
             return port.device, ports
     return None, ports
 
+def send_set(ser, freq):
+    ser.write(f"SET {freq}\n".encode("utf-8"))
+
 def parse_frequency(line: str):
     text = line.strip()
     if not text:
