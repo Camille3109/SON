@@ -23,22 +23,22 @@ def parse_frequency(line: str):
     except ValueError:
         return None
 
-PORT, PORTS = find_arduino_port()
-if not PORT:
-    print("No Arduino found, available ports:")
-    for port in PORTS:
-        print(f"  {port.device}: {port.description}")
-    raise SystemExit(1)
+def main_r():
+    PORT, PORTS = find_arduino_port()
+    if not PORT:
+        print("No Arduino found, available ports:")
+        for port in PORTS:
+            print(f"  {port.device}: {port.description}")
+        raise SystemExit(1)
 
-ser = serial.Serial(PORT, BAUD, timeout=0.1)
-time.sleep(1.5)
+    ser = serial.Serial(PORT, BAUD, timeout=0.1)
+    time.sleep(1.5)
 
-while True:
-    line = ser.readline().decode("utf-8", errors="ignore")
-    if not line:
-        continue
-    # Print all incoming data for debugging
-    print(f"[raw] {line.strip()}")
-    freq = parse_frequency(line)
-    if freq is not None:
-        print(f"[freq] {freq}")
+    while True:
+        line = ser.readline().decode("utf-8", errors="ignore")
+        if not line:
+            continue
+        # Print all incoming data for debugging
+        freq = parse_frequency(line)
+        if freq is not None:
+            return freq
