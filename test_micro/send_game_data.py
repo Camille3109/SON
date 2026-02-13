@@ -27,7 +27,7 @@ def main():
 
     ser = serial.Serial(PORT, BAUD, timeout=0.1)
     time.sleep(1.5)
-    target = random.randint(200,500)
+    target = random.randint(100,250)
     print(target)
     send_set(ser,target)
     return target

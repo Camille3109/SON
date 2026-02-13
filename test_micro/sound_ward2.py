@@ -14,7 +14,7 @@ import random
 import math
 import sys
 
-from send_game_data import find_arduino_port, BAUD
+from send_game_data2 import find_arduino_port, BAUD, MODES, select_mode
 from read_game_data import parse_frequency
 import serial
 
@@ -51,37 +51,73 @@ MONSTER_SPEED_AT   = 2000   # score auquel la vitesse maximale est atteinte
 # Cette fréquence est envoyée au Teensy et affichée sur le monstre.
 # Le joueur doit reproduire cette fréquence à ±FREQ_TOL Hz.
 # pts : points accordés pour tuer ce type de monstre.
-MONSTERS = [
-    {
-        "name":     "Oni",
-        "freq_min": 200,        # fréquence minimale possible (Hz)
-        "freq_max": 300,        # fréquence maximale possible (Hz)
-        "color":    (220, 60,  60),
-        "emoji":    "👹",
-        "pts":      100,
-    },
-    {
-        "name":     "Fantome",
-        "freq_min": 301,
-        "freq_max": 400,
-        "color":    (60,  140, 220),
-        "emoji":    "👻",
-        "pts":      150,
-    },
-    {
-        "name":     "Spectre",
-        "freq_min": 401,
-        "freq_max": 500,
-        "color":    (180, 60,  220),
-        "emoji":    "🔮",
-        "pts":      200,
-    },
-]
+
+def get_monsters_for_mode(mode):
+    """Generate monsters array based on selected mode"""
+    if mode == 'male':
+        # Male mode: 80-200 Hz
+        return [
+            {
+                "name":     "Oni",
+                "freq_min": 80,
+                "freq_max": 120,
+                "color":    (220, 60,  60),
+                "emoji":    "👹",
+                "pts":      100,
+            },
+            {
+                "name":     "Fantome",
+                "freq_min": 121,
+                "freq_max": 160,
+                "color":    (60,  140, 220),
+                "emoji":    "👻",
+                "pts":      150,
+            },
+            {
+                "name":     "Spectre",
+                "freq_min": 161,
+                "freq_max": 200,
+                "color":    (180, 60,  220),
+                "emoji":    "🔮",
+                "pts":      200,
+            },
+        ]
+    else:  # female
+        # Female mode: 250-450 Hz
+        return [
+            {
+                "name":     "Oni",
+                "freq_min": 250,
+                "freq_max": 313,
+                "color":    (220, 60,  60),
+                "emoji":    "👹",
+                "pts":      100,
+            },
+            {
+                "name":     "Fantome",
+                "freq_min": 314,
+                "freq_max": 381,
+                "color":    (60,  140, 220),
+                "emoji":    "👻",
+                "pts":      150,
+            },
+            {
+                "name":     "Spectre",
+                "freq_min": 382,
+                "freq_max": 450,
+                "color":    (180, 60,  220),
+                "emoji":    "🔮",
+                "pts":      200,
+            },
+        ]
+
+# Default to female mode monsters (will be updated after mode selection)
+MONSTERS = get_monsters_for_mode('female')
 
 # ── Barre de fréquences (affichage bas d'écran) ───────────────────────────────
-# Doit couvrir l'ensemble des plages ci-dessus.
-FREQ_BAR_MIN = 100  # Hz affiché à gauche de la barre
-FREQ_BAR_MAX = 420  # Hz affiché à droite de la barre
+# Sera mise à jour selon le mode sélectionné
+FREQ_BAR_MIN = 100  # Hz affiché à gauche de la barre (sera ajusté)
+FREQ_BAR_MAX = 420  # Hz affiché à droite de la barre (sera ajusté)
 
 # ── Palette de couleurs ───────────────────────────────────────────────────────
 BG        = (8,   4,  20)   # fond général
@@ -270,6 +306,7 @@ class Monster:
 
 # ─── Jeu ──────────────────────────────────────────────────────────────────────
 class Game:
+    S_GENDER = "gender"
     S_MENU   = "menu"
     S_PLAY   = "playing"
     S_SCREAM = "scream"
@@ -287,6 +324,8 @@ class Game:
         self.f_sm  = pygame.font.SysFont("monospace", 17)
         self.f_xs  = pygame.font.SysFont("monospace", 13)
         self.f_em  = pygame.font.SysFont("segoeuisymbol", 22)
+        
+        self.mode = None
 
         # Pont série unique
         self.serial = SerialBridge()
@@ -297,7 +336,7 @@ class Game:
                        random.uniform(0.3, 1.0)) for _ in range(NB_STARS)]
 
         # État du jeu
-        self.state    = self.S_MENU
+        self.state = self.S_GENDER
         self.score    = 0
         self.hi_score = 0
 
@@ -363,22 +402,47 @@ class Game:
             if ev.type == pygame.QUIT:
                 self.serial.stop(); pygame.quit(); sys.exit()
             if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
-                self.state = self.S_MENU
+                if self.state == self.S_PLAY:
+                    self.state = self.S_MENU
+                elif self.state == self.S_MENU:
+                    self.state = self.S_GENDER
             if ev.type == pygame.MOUSEBUTTONDOWN:
                 self._click(ev.pos)
 
     def _click(self, pos):
         mx, my = pos
-        if self.state == self.S_MENU:
+        if self.state == self.S_GENDER:
+            if 330 < mx < 570 and 370 < my < 430:
+                self._set_mode('male')
+            elif 330 < mx < 570 and 450 < my < 510:
+                self._set_mode('female')
+        elif self.state == self.S_MENU:
             if 330 < mx < 570 and 370 < my < 430:
                 self.reset()
-            if 330 < mx < 570 and 450 < my < 510:
+            elif 330 < mx < 570 and 450 < my < 510:
                 self.serial.stop(); pygame.quit(); sys.exit()
-        if self.state == self.S_DEAD:
+        elif self.state == self.S_DEAD:
             if 310 < mx < 590 and 420 < my < 480:
                 self.reset()
-            if 310 < mx < 590 and 500 < my < 558:
+            elif 310 < mx < 590 and 500 < my < 558:
                 self.state = self.S_MENU
+
+    def _set_mode(self, mode):
+        self.mode = mode
+
+        global MONSTERS, FREQ_BAR_MIN, FREQ_BAR_MAX
+        MONSTERS = get_monsters_for_mode(mode)
+
+        if mode == 'male':
+            FREQ_BAR_MIN = 60
+            FREQ_BAR_MAX = 220
+        else:
+            FREQ_BAR_MIN = 220
+            FREQ_BAR_MAX = 470
+
+        print(f"\nMode sélectionné : {mode}\n")
+
+        self.state = self.S_MENU
 
     # ── Update ────────────────────────────────────────────────────────────────
     def _update(self, dt):
@@ -468,7 +532,8 @@ class Game:
         self._draw_stars(surf)
         self._draw_scanlines(surf)
 
-        if   self.state == self.S_MENU:   self._draw_menu(surf)
+        if   self.state == self.S_GENDER: self._draw_menu_gender(surf)
+        elif self.state == self.S_MENU:   self._draw_menu(surf)
         elif self.state == self.S_PLAY:   self._draw_play(surf)
         elif self.state == self.S_SCREAM: self._draw_scream(surf)
         elif self.state == self.S_DEAD:   self._draw_dead(surf)
@@ -488,6 +553,21 @@ class Game:
             pygame.draw.line(sl, (0, 0, 0, 30), (0, y), (W, y))
         surf.blit(sl, (0, 0))
 
+    def _draw_menu_gender(self, surf):
+        t  = time.time()
+        pc = int(180 + 60*math.sin(t*2))
+        t1 = self.f_big.render("SOUND", True, (0, pc, 180))
+        t2 = self.f_big.render("WARD",  True, PINK)
+        surf.blit(t1, t1.get_rect(center=(W//2 - 60, 160)))
+        surf.blit(t2, t2.get_rect(center=(W//2 + 75, 220)))
+
+        sub = self.f_xs.render("─── Choisis un mode approprié pour ta voix ───",
+                                True, (130, 120, 160))
+        surf.blit(sub, sub.get_rect(center=(W//2, 290)))
+
+        self._btn(surf, "  BASSE  ",  W//2, 400, PINK, (330, 570, 370, 430))
+        self._btn(surf, " SOPRANO ",  W//2, 480, CYAN, (330, 570, 450, 510))
+        
     # ── Écran Menu ────────────────────────────────────────────────────────────
     def _draw_menu(self, surf):
         t  = time.time()
@@ -649,7 +729,7 @@ class Game:
 
         pc = tuple(int(c * (0.85 + 0.15*math.sin(t*3))) for c in PINK)
         self._btn(surf, " RECOMMENCER ",  W//2, 450, pc,   (310, 590, 420, 480))
-        self._btn(surf, "    MENU     ",  W//2, 527, CYAN, (310, 590, 500, 558))
+        self._btn(surf, "     MENU     ",  W//2, 527, CYAN, (310, 590, 500, 558))
 
 
 # ─── Lancement ────────────────────────────────────────────────────────────────
