@@ -425,7 +425,7 @@ class Game:
             if 310 < mx < 590 and 420 < my < 480:
                 self.reset()
             elif 310 < mx < 590 and 500 < my < 558:
-                self.state = self.S_MENU
+                self.state = self.S_GENDER
 
     def _set_mode(self, mode):
         self.mode = mode
