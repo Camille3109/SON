@@ -14,7 +14,7 @@ import random
 import math
 import sys
 
-from send_game_data2 import find_arduino_port, BAUD, MODES, select_mode
+from send_game_data import find_arduino_port, BAUD, MODES, select_mode
 from read_game_data import parse_frequency
 import serial
 
