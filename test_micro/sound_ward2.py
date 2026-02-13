@@ -562,7 +562,7 @@ class Game:
         surf.blit(t1, t1.get_rect(center=(W//2, 160)))
 
         sub = self.f_xs.render("─── Choisis un mode approprié pour ta voix ───",
-                                True, (130, 120, 160))
+                                True, (220, 195, 255))
         surf.blit(sub, sub.get_rect(center=(W//2, 290)))
 
         self._btn(surf, "  BASSE  ",  W//2, 400, PINK, (330, 570, 370, 430))
@@ -576,7 +576,7 @@ class Game:
         surf.blit(t1, t1.get_rect(center=(W//2, 160)))
 
         sub = self.f_xs.render("─── Reproduis la fréquence pour survivre ───",
-                                True, (130, 120, 160))
+                                True, (220, 195, 255))
         surf.blit(sub, sub.get_rect(center=(W//2, 280)))
 
         # Icônes monstres avec leur plage de fréquences
@@ -597,8 +597,8 @@ class Game:
 
         if self.hi_score:
             hi = self.f_xs.render(f"MEILLEUR SCORE : {self.hi_score}",
-                                   True, (160, 140, 200))
-            surf.blit(hi, hi.get_rect(center=(W//2, 548)))
+                                   True, (220, 195, 255))
+            surf.blit(hi, hi.get_rect(center=(W//2, 250)))
 
     def _btn(self, surf, text, cx, cy, color, hover_zone=None):
         mx, my = pygame.mouse.get_pos()
@@ -638,7 +638,7 @@ class Game:
         if self._waiting_spawn:
             rem  = max(0.0, self.spawn_interval - self._spawn_timer)
             stxt = self.f_xs.render(
-                f"prochain monstre dans {rem:.1f}s", True, (100, 90, 130))
+                f"prochain monstre dans {rem:.1f}s", True, (220, 195, 255))
             surf.blit(stxt, stxt.get_rect(center=(W//2, H - 45)))
 
         # Particules
@@ -660,8 +660,6 @@ class Game:
     def _draw_hud(self, surf):
         surf.blit(self.f_med.render(f"SCORE  {self.score}", True, WHITE), (18, 14))
         surf.blit(self.f_sm.render(f"BEST {self.hi_score}", True, (130, 120, 160)), (18, 50))
-        surf.blit(self.f_xs.render(f"SPAWN  {self.spawn_interval:.1f}s",
-                                    True, (160, 200, 160)), (W - 162, 14))
 
         fu     = self.serial.get_freq()
         fc_txt = f"{fu:.0f} Hz" if fu > 50 else "–"
