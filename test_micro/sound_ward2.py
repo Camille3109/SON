@@ -319,7 +319,7 @@ class Game:
         self.clock  = pygame.time.Clock()
 
         # Polices
-        self.f_big = pygame.font.SysFont("monospace", 52, bold=True)
+        self.f_big = pygame.font.SysFont("monospace", 80, bold=True)
         self.f_med = pygame.font.SysFont("monospace", 28, bold=True)
         self.f_sm  = pygame.font.SysFont("monospace", 17)
         self.f_xs  = pygame.font.SysFont("monospace", 13)
@@ -417,9 +417,9 @@ class Game:
             elif 330 < mx < 570 and 450 < my < 510:
                 self._set_mode('female')
         elif self.state == self.S_MENU:
-            if 330 < mx < 570 and 370 < my < 430:
+            if 330 < mx < 570 and 430 < my < 490:
                 self.reset()
-            elif 330 < mx < 570 and 450 < my < 510:
+            elif 330 < mx < 570 and 510 < my < 570:
                 self.serial.stop(); pygame.quit(); sys.exit()
         elif self.state == self.S_DEAD:
             if 310 < mx < 590 and 420 < my < 480:
@@ -556,10 +556,9 @@ class Game:
     def _draw_menu_gender(self, surf):
         t  = time.time()
         pc = int(180 + 60*math.sin(t*2))
-        t1 = self.f_big.render("SOUND", True, (0, pc, 180))
-        t2 = self.f_big.render("WARD",  True, PINK)
-        surf.blit(t1, t1.get_rect(center=(W//2 - 60, 160)))
-        surf.blit(t2, t2.get_rect(center=(W//2 + 75, 220)))
+        t1 = self.f_big.render("SOUND WARD", True, (0, pc, 180))
+        
+        surf.blit(t1, t1.get_rect(center=(W//2, 160)))
 
         sub = self.f_xs.render("─── Choisis un mode approprié pour ta voix ───",
                                 True, (130, 120, 160))
@@ -572,14 +571,12 @@ class Game:
     def _draw_menu(self, surf):
         t  = time.time()
         pc = int(180 + 60*math.sin(t*2))
-        t1 = self.f_big.render("SOUND", True, (0, pc, 180))
-        t2 = self.f_big.render("WARD",  True, PINK)
-        surf.blit(t1, t1.get_rect(center=(W//2 - 60, 160)))
-        surf.blit(t2, t2.get_rect(center=(W//2 + 75, 220)))
+        t1 = self.f_big.render("SOUND WARD", True, (0, pc, 180))
+        surf.blit(t1, t1.get_rect(center=(W//2, 160)))
 
         sub = self.f_xs.render("─── Reproduis la fréquence pour survivre ───",
                                 True, (130, 120, 160))
-        surf.blit(sub, sub.get_rect(center=(W//2, 290)))
+        surf.blit(sub, sub.get_rect(center=(W//2, 280)))
 
         # Icônes monstres avec leur plage de fréquences
         for i, m in enumerate(MONSTERS):
@@ -594,8 +591,8 @@ class Game:
                 f"{m['freq_min']}–{m['freq_max']} Hz", True, m["color"])
             surf.blit(fl, fl.get_rect(center=(x, 360)))
 
-        self._btn(surf, "  JOUER  ",  W//2, 400, CYAN, (330, 570, 370, 430))
-        self._btn(surf, " QUITTER ",  W//2, 480, PINK, (330, 570, 450, 510))
+        self._btn(surf, "  JOUER  ",  W//2, 460, CYAN, (330, 570, 430, 490))
+        self._btn(surf, " QUITTER ",  W//2, 540, PINK, (330, 570, 510, 570))
 
         if self.hi_score:
             hi = self.f_xs.render(f"MEILLEUR SCORE : {self.hi_score}",
