@@ -28,6 +28,7 @@ void setup() {
   // Initialisation de l'analyseur de fréquence
   notefreq.begin(0.15); // Seuil de probabilité (0.0 à 1.0)
 
+  myFreq.setParamValue("choose", 0);
   myFreq.setParamValue("freq", freq_em);
 }
 
@@ -35,7 +36,6 @@ void loop() {
   if (notefreq.available()) {
     float freq = notefreq.read();
  
-    
     Serial.print("Fréquence: ");
     Serial.print(freq);
     Serial.println(" Hz");}
@@ -46,13 +46,26 @@ void loop() {
     int freq_em = line.toInt();
 
     if (freq_em != 0){
-      myFreq.setParamValue("freq", freq_em);
-      delay(800);
-      freq_em = 0;
-       myFreq.setParamValue("freq", freq_em);
+      if (freq_em == 3000){
+        myFreq.setParamValue("choose", 1);
+        myFreq.setParamValue("freq", random(2000, 3000));
+        delay(800);
+        freq_em = 0;
+        myFreq.setParamValue("freq", freq_em);
+        myFreq.setParamValue("choose", 0);}
+      else {
+        myFreq.setParamValue("freq", freq_em);
+        delay(800);
+        freq_em = 0;
+        myFreq.setParamValue("freq", freq_em);
+        
+      }
     }
 }
   delay(100); // Lecture toutes les 100ms
   }
+  
+
+
   
   

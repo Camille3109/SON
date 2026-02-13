@@ -521,6 +521,7 @@ class Game:
         self.state    = self.S_SCREAM
         self.scream_t = 0.0
         self.shake    = SCREEN_SHAKE
+        self.serial.send_freq(3000)
 
     # ── Dessin général ────────────────────────────────────────────────────────
     def _draw(self):
