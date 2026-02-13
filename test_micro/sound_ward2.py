@@ -59,24 +59,24 @@ def get_monsters_for_mode(mode):
         return [
             {
                 "name":     "Oni",
-                "freq_min": 80,
-                "freq_max": 120,
+                "freq_min": 180,
+                "freq_max": 240,
                 "color":    (220, 60,  60),
                 "emoji":    "👹",
                 "pts":      100,
             },
             {
                 "name":     "Fantome",
-                "freq_min": 121,
-                "freq_max": 160,
+                "freq_min": 241,
+                "freq_max": 300,
                 "color":    (60,  140, 220),
                 "emoji":    "👻",
                 "pts":      150,
             },
             {
                 "name":     "Spectre",
-                "freq_min": 161,
-                "freq_max": 200,
+                "freq_min": 300,
+                "freq_max": 400,
                 "color":    (180, 60,  220),
                 "emoji":    "🔮",
                 "pts":      200,
@@ -87,24 +87,24 @@ def get_monsters_for_mode(mode):
         return [
             {
                 "name":     "Oni",
-                "freq_min": 250,
-                "freq_max": 313,
+                "freq_min": 300,
+                "freq_max": 399,
                 "color":    (220, 60,  60),
                 "emoji":    "👹",
                 "pts":      100,
             },
             {
                 "name":     "Fantome",
-                "freq_min": 314,
-                "freq_max": 381,
+                "freq_min": 400,
+                "freq_max": 599,
                 "color":    (60,  140, 220),
                 "emoji":    "👻",
                 "pts":      150,
             },
             {
                 "name":     "Spectre",
-                "freq_min": 382,
-                "freq_max": 450,
+                "freq_min": 600,
+                "freq_max": 700,
                 "color":    (180, 60,  220),
                 "emoji":    "🔮",
                 "pts":      200,
@@ -434,11 +434,11 @@ class Game:
         MONSTERS = get_monsters_for_mode(mode)
 
         if mode == 'male':
-            FREQ_BAR_MIN = 60
-            FREQ_BAR_MAX = 220
+            FREQ_BAR_MIN = 130
+            FREQ_BAR_MAX = 450
         else:
-            FREQ_BAR_MIN = 220
-            FREQ_BAR_MAX = 470
+            FREQ_BAR_MIN = 250
+            FREQ_BAR_MAX = 750
 
         print(f"\nMode sélectionné : {mode}\n")
 
@@ -638,7 +638,7 @@ class Game:
             rem  = max(0.0, self.spawn_interval - self._spawn_timer)
             stxt = self.f_xs.render(
                 f"prochain monstre dans {rem:.1f}s", True, (100, 90, 130))
-            surf.blit(stxt, stxt.get_rect(center=(W//2, H - 36)))
+            surf.blit(stxt, stxt.get_rect(center=(W//2, H - 45)))
 
         # Particules
         for p in self.particles:
