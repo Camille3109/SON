@@ -3,14 +3,14 @@ import serial.tools.list_ports
 
 BAUD = 9600
 
-def find_arduino_port():
-    ports = serial.tools.list_ports.comports()
+def find_arduino_port(): # on cherche le port arduino
+    ports = serial.tools.list_ports.comports() 
     for port in ports:
         if "USB" in port.description or "Arduino" in port.description:
             return port.device, ports
     return None, ports
 
-def parse_frequency(line: str):
+def parse_frequency(line: str): # retourne la fréquence seule
     text = line.strip()
     if not text:
         return None
@@ -23,8 +23,8 @@ def parse_frequency(line: str):
     except ValueError:
         return None
 
-def main_r():
-    PORT, PORTS = find_arduino_port()
+def main_r(): 
+    PORT, PORTS = find_arduino_port() # on trouve le port arduino
     if not PORT:
         print("No Arduino found, available ports:")
         for port in PORTS:
@@ -35,10 +35,9 @@ def main_r():
     time.sleep(1.5)
 
     while True:
-        line = ser.readline().decode("utf-8", errors="ignore")
+        line = ser.readline().decode("utf-8", errors="ignore") # on lit ce qu'il nous envoie
         if not line:
             continue
-        # Print all incoming data for debugging
-        freq = parse_frequency(line)
+        freq = parse_frequency(line) # si elle existe, on extrait la fréquence du message
         if freq is not None:
-            return freq
+            return freq 

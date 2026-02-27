@@ -6,17 +6,17 @@ import time
 MAX_TRY_TIME = 5  
 
 t = 0
-while t == 0:
-    target = main()
+while t == 0: # boucle principale du jeu
+    target = main() # on récupère la fréquence cible
     start_time = time.time()
     success = False
 
     # On laisse l'utilisateur essayer pendant MAX_TRY_TIME secondes
     while time.time() - start_time < MAX_TRY_TIME:
-        freq_util = main_r()
+        freq_util = main_r() # on récupère la fréquence de l'utilisateur 
         print(f"Votre fréquence: {freq_util} Hz")  # optionnel pour feedback
 
-        if target - 40 <= freq_util <= target + 40:
+        if target - 40 <= freq_util <= target + 40: # on teste la ressemblance en laissant une marge à l'utilisateur 
             print("Bravo !")
             success = True
             break  # quitte la boucle interne si réussi
