@@ -1,11 +1,13 @@
 import("stdfaust.lib");
-freq = hslider("freq", 440,50,2000,0.01);
-screamer = hslider("screamer", 440,50,2000,0.01);
-choose = nentry("choose", 0, 0, 1, 1); 
+freq = hslider("freq", 440,50,2000,0.01); // on crée le slider pour la fréquence normale
+screamer = hslider("screamer", 440,50,2000,0.01); // de même pour les screamers
+choose = nentry("choose", 0, 0, 1, 1);  // on crée un paramètre binaire
 
-osc2 = os.osc(screamer * 1.5) * 0.2;
+// on applique des transformations à la fréquence du screamer 
+osc2 = os.osc(screamer * 1.5) * 0.2; 
 oscScream = os.osc(screamer + os.osc(5)*20) * 0.3 + osc2;
 
 oscNormal = os.osc(freq) * 0.3;
 
+// le choix du type de fréquence à émettre (basique ou screamer se fait via le paramètre choose)
 process = select2(choose, oscNormal, oscScream);
