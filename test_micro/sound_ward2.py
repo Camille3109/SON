@@ -1,10 +1,10 @@
 """
-SOUND WARD - Version Graphique
+SOUND WARD - Version graphique pour le projet SON
 Basé sur l'architecture main.py / send_game_data.py / read_game_data.py
-Lancement : python sound_ward.py
+Lancement : python sound_ward2.py
 
 Dépendances : pygame  pyserial
-  pip install pygame pyserial
+pip install pygame pyserial
 """
 
 import pygame
@@ -18,7 +18,7 @@ from send_game_data import find_arduino_port, BAUD, MODES, select_mode
 from read_game_data import parse_frequency
 import serial
 
-SOUND_TRIGGER_DIST = 275   # distance en pixels du centre
+SOUND_TRIGGER_DIST = 275   # distance en pixels du centre à partir de laquelle le monstre émet le son
 
 # ── Fenêtre ───────────────────────────────────────────────────────────────────
 W   = 900       # largeur de la fenêtre en pixels
@@ -26,7 +26,7 @@ H   = 650       # hauteur de la fenêtre en pixels
 FPS = 60        # images par seconde
 
 # ── Tolérance de fréquence ────────────────────────────────────────────────────
-FREQ_TOL = 40   # le joueur doit être à ±FREQ_TOL Hz de la cible pour valider
+FREQ_TOL = 40   # le joueur doit être à ±FREQ_TOL Hz de la fréquence cible pour valider
 
 # ── Difficulté : temps de réponse (secondes) ─────────────────────────────────
 RESPONSE_TIME_BASE = 5.0    # temps accordé au départ
@@ -132,13 +132,12 @@ PARTICLE_COUNT  = 30    # particules émises à la mort d'un monstre
 SCREAM_DURATION = 1.8   # durée de l'écran "PERDU" en secondes
 SCREEN_SHAKE    = 40    # intensité du screen-shake au game over (frames)
 
-# ─── Pont série unique (lecture + écriture sur la même connexion) ─────────────
+# ─── Communication entre le teensy et python (lecture + écriture sur la même connexion) ─────────────
 class SerialBridge(threading.Thread):
     """
     Une seule connexion série partagée pour :
-      - lire en continu les fréquences (parse_frequency de read_game_data)
+      - lire en continu les fréquences venant du Teensy (parse_frequency de read_game_data)
       - envoyer la fréquence cible au Teensy (comme send_set de send_game_data)
-    Cela évite le PermissionError qui survenait en ouvrant le port deux fois.
     """
     def reset_freq(self):
         with self._lock:
@@ -202,7 +201,7 @@ class SerialBridge(threading.Thread):
             except Exception: pass
 
 
-# ─── Particules ───────────────────────────────────────────────────────────────
+# ─── Particules (graphisme, sert lorsqu'un monstre est détruit) ───────────────────────────────────────────────────────────────
 class Particle:
     def __init__(self, x, y, color):
         angle = random.uniform(0, 2*math.pi)
@@ -328,8 +327,8 @@ class Game:
         self.mode = None
 
         # Pont série unique
-        self.serial = SerialBridge()
-        self.serial.start()
+        self.serial = SerialBridge() # Communication lancée
+        self.serial.start() 
 
         # Champ d'étoiles
         self.stars = [(random.randint(0, W), random.randint(0, H),
@@ -382,7 +381,6 @@ class Game:
         data         = random.choice(MONSTERS)
         self.monster = Monster(data, self.response_time, self.speed_mult)
         self._waiting_spawn = False
-        # Envoi de la fréquence tirée au Teensy via la connexion partagée
         freq = self.monster.freq
         self._freq_already_used = False
 
@@ -522,6 +520,9 @@ class Game:
         self.scream_t = 0.0
         self.shake    = SCREEN_SHAKE
         self.serial.send_freq(3000)
+
+
+        
 
     # ── Dessin général ────────────────────────────────────────────────────────
     def _draw(self):
